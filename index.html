@@ -448,7 +448,7 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
                (Google Drive: use o link de compartilhamento no formato
                 https://drive.google.com/uc?export=view&id=SEU_ID_AQUI)
                Exemplo: src="https://drive.google.com/uc?export=view&id=1AbCdEfGhIjKlMnOpQrStUvWxYz" -->
-          <img src="https://drive.google.com/file/d/1mWBdL1mkO_VyAL3smA5_CsITvIaZzgAO" alt="Capa do Álbum 01"
+          <img src="" alt="Capa do Álbum 01"
                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
           <!-- Placeholder exibido enquanto a imagem não for adicionada -->
           <div class="album-placeholder" style="display:flex">
@@ -534,7 +534,7 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
            ║  ÁLBUM 03  — edite os campos marcados com ◄ ◄ ◄         ║
            ╚══════════════════════════════════════════════════════════╝ -->
       <div class="album-card">
-        <div class="album-idx">ALB-DragonBall</div>
+        <div class="album-idx">ALB-Dragon Ball</div>
         <div class="album-cover-wrap" onclick="openLightbox(2)">
           <!-- ▼▼▼ LINK DA IMAGEM DE CAPA ▼▼▼ -->
           <img src="" alt="Capa do Álbum 03"
@@ -551,7 +551,7 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
         </div>
         <div class="album-info">
           <!-- ▼▼▼ NOME DO ÁLBUM ▼▼▼ -->
-          <div class="album-name">Álbum DragonBall</div>
+          <div class="album-name">Álbum Dragon Ball</div>
           <!-- ▼▼▼ DESCRIÇÃO DO ÁLBUM ▼▼▼ -->
           <div class="album-desc">Deixe um sorriso respladescente e um coração alegre na pessoa que ama.</div>
           <div class="album-price-row">
@@ -624,120 +624,131 @@ footer .b{color:var(--cyan);}footer .h{color:var(--mag);}
    CONFIGURAÇÃO DOS ÁLBUNS
    ════════════════════════════════════════════════════════════
 
-   Aqui você configura os dados de cada álbum para o lightbox.
-   A ordem deve ser a mesma dos cards no HTML acima.
+   Cole o link de compartilhamento do Google Drive em `img`.
+   Qualquer formato funciona — o site converte automaticamente:
 
-   ┌─────────────────────────────────────────────────────────┐
-   │ img   → Link direto da imagem (Google Drive ou outro)   │
-   │         Formato Google Drive:                           │
-   │         https://drive.google.com/uc?export=view&id=ID  │
-   │                                                         │
-   │ name  → Nome do álbum (aparece no topo do lightbox)    │
-   │ price → Valor (aparece ao lado do nome no lightbox)    │
-   └─────────────────────────────────────────────────────────┘ */
+     https://drive.google.com/file/d/SEU_ID/view?usp=sharing
+     https://drive.google.com/file/d/SEU_ID/view
+     https://drive.google.com/open?id=SEU_ID
+
+   ⚠️  IMPORTANTE: a foto precisa estar com permissão
+       "Qualquer pessoa com o link pode ver" no Drive.       */
 
 const albums = [
   {
     /* ── ÁLBUM 01 ── */
-    img:   "https://drive.google.com/file/d/1mWBdL1mkO_VyAL3smA5_CsITvIaZzgAO",                  // ◄ Cole aqui o link da imagem de capa
-    name:  "Álbum Demon Slayer",// ◄ Nome do álbum
-    price: "R$ 39,90"           // ◄ Valor
+    img:   "https://drive.google.com/file/d/1mWBdL1mkO_VyAL3smA5_CsITvIaZzgAO/view?usp=sharing",
+    name:  "Álbum Demon Slayer",
+    price: "R$ 39,90"
   },
   {
     /* ── ÁLBUM 02 ── */
-    img:   "",                  // ◄ Cole aqui o link da imagem de capa
+    img:   "https://drive.google.com/file/d/10Uyzn23m3RZVODhOoNjMnwWZP5ibuz_i/view?usp=sharing",
     name:  "Álbum Disney",
     price: "R$ 34,90"
   },
   {
     /* ── ÁLBUM 03 ── */
-    img:   "",                  // ◄ Cole aqui o link da imagem de capa
-    name:  "Álbum DragonBall",
+    img:   "https://drive.google.com/file/d/1Uj5r_ZWh2SEL9tl9ljwyREU7r13UYUGn/view?usp=sharing",
+    name:  "Álbum Dragon Ball",
     price: "R$ 39,90"
   },
-  /* ──────────────────────────────────────────────────────
-     Para adicionar mais álbuns, copie o bloco abaixo,
-     descomente-o e preencha os dados:
-
+  /* Para adicionar mais álbuns, copie e preencha:
   {
     img:   "",
     name:  "Nome do Novo Álbum",
     price: "R$ 00,00"
-  },
-     ────────────────────────────────────────────────────── */
+  }, */
 ];
 
 /* ════════════════════════════════════════════════════════════
-   LIGHTBOX — não precisa editar abaixo desta linha
+   FUNÇÕES DO DRIVE — não edite abaixo desta linha
    ════════════════════════════════════════════════════════════ */
-let lbCurrent = 0;
+function extractDriveFileId(url) {
+  if (!url) return null;
+  url = url.trim();
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]{25,})/,
+    /[?&]id=([a-zA-Z0-9_-]{25,})/,
+    /\/d\/([a-zA-Z0-9_-]{25,})/,
+    /\/open\?id=([a-zA-Z0-9_-]{25,})/,
+  ];
+  for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
+  return null;
+}
+function driveThumbUrl(fileId, size) {
+  if (!fileId) return '';
+  return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w' + (size || 600);
+}
+function driveUrl(raw, size) {
+  const id = extractDriveFileId(raw);
+  return id ? driveThumbUrl(id, size || 600) : (raw || '');
+}
 
+document.addEventListener('DOMContentLoaded', () => {
+  const cards = document.querySelectorAll('.album-cover-wrap');
+  cards.forEach((wrap, i) => {
+    const album = albums[i];
+    if (!album || !album.img) return;
+    const img         = wrap.querySelector('img');
+    const placeholder = wrap.querySelector('.album-placeholder');
+    const thumbUrl    = driveUrl(album.img, 600);
+    if (img && thumbUrl) {
+      img.src           = thumbUrl;
+      img.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+      img.onerror = () => {
+        img.style.display = 'none';
+        if (placeholder) {
+          placeholder.style.display = 'flex';
+          const span = placeholder.querySelector('span');
+          if (span) span.textContent = '⚠ Verifique a permissão no Drive';
+        }
+      };
+    }
+  });
+});
+
+let lbCurrent = 0;
 function openLightbox(idx) {
   const a = albums[idx];
   if (!a) return;
   lbCurrent = idx;
-  const img = document.getElementById('lightboxImg');
-  img.src = a.img || '';
+  const img     = document.getElementById('lightboxImg');
+  img.src       = driveUrl(a.img, 1600);
+  img.style.opacity = '0';
+  img.onload    = () => { img.style.transition='opacity .25s'; img.style.opacity='1'; };
   document.getElementById('lightboxInfo').textContent = a.name + '  ·  ' + a.price;
   updateCounter();
   document.getElementById('lightboxOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
-
-/* Abre o lightbox E tenta tela cheia nativa imediatamente */
-function openLightboxFull(idx) {
-  openLightbox(idx);
-  setTimeout(lightboxOpenNative, 200);
-}
-
+function openLightboxFull(idx) { openLightbox(idx); setTimeout(lightboxOpenNative, 300); }
 function closeLightbox() {
   document.getElementById('lightboxOverlay').classList.remove('open');
   document.body.style.overflow = '';
   if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
 }
-
-function lightboxBgClick(e) {
-  if (e.target === document.getElementById('lightboxOverlay')) closeLightbox();
-}
-
-function lightboxNav(dir) {
-  lbCurrent = (lbCurrent + dir + albums.length) % albums.length;
-  openLightbox(lbCurrent);
-}
-
-function updateCounter() {
-  document.getElementById('lightboxCounter').textContent =
-    `${lbCurrent + 1} / ${albums.length}`;
-}
-
-/* Tela cheia nativa (API Fullscreen) */
+function lightboxBgClick(e) { if (e.target===document.getElementById('lightboxOverlay')) closeLightbox(); }
+function lightboxNav(dir) { lbCurrent=(lbCurrent+dir+albums.length)%albums.length; openLightbox(lbCurrent); }
+function updateCounter() { document.getElementById('lightboxCounter').textContent=`${lbCurrent+1} / ${albums.length}`; }
 function lightboxOpenNative() {
-  const el = document.getElementById('lightboxImg');
-  const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen;
-  if (req) req.call(el).catch(()=>{});
+  const el=document.getElementById('lightboxImg');
+  const req=el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen;
+  if(req) req.call(el).catch(()=>{});
 }
-
-/* Teclas de atalho */
 document.addEventListener('keydown', e => {
-  const lb = document.getElementById('lightboxOverlay');
-  if (!lb.classList.contains('open')) return;
-  if (e.key === 'Escape')      closeLightbox();
-  if (e.key === 'ArrowRight')  lightboxNav(1);
-  if (e.key === 'ArrowLeft')   lightboxNav(-1);
+  const lb=document.getElementById('lightboxOverlay');
+  if(!lb.classList.contains('open')) return;
+  if(e.key==='Escape') closeLightbox();
+  if(e.key==='ArrowRight') lightboxNav(1);
+  if(e.key==='ArrowLeft') lightboxNav(-1);
 });
-
-/* ─── Scroll to top ─── */
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTop').classList.toggle('vis', window.scrollY > 300);
-});
-
-/* ─── Toast ─── */
-function showToast(msg, ok = false) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast' + (ok ? ' ok' : '');
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+window.addEventListener('scroll',()=>{ document.getElementById('scrollTop').classList.toggle('vis',window.scrollY>300); });
+function showToast(msg,ok=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast'+(ok?' ok':''); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
 
